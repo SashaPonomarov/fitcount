@@ -1,0 +1,20 @@
+.Activity {
+  transition: height 0.5s;
+  height: 50px;
+  
+}
+.Activity>div {
+  display: flex;
+}
+.Activity.expanded {
+  height: 100px;
+}
+.activity-actions {
+  display: none;
+}
+.Activity.expanded .activity-actions, .activity-data {
+  display: inline-block;
+}
+.aaa {
+  display: flex;
+}
