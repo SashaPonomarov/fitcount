@@ -10,12 +10,12 @@ import IconDecrease from 'material-ui/svg-icons/content/remove';
 class Activity extends Component {
   handleDelete = (e) => {
     e.stopPropagation();
-    this.props.removeActivity(this.props.id);
+    this.props.removeActivity(this.props.activity.id);
   }
   handleChange = (e) => {
     e.stopPropagation();
     const data = e.currentTarget.dataset
-    this.props.changeAmount(this.props.id, data.sign, data.amount);
+    this.props.changeAmount(this.props.activity.id, data.sign, data.amount);
   }
 
   render() {

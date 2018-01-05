@@ -15,8 +15,6 @@ class App extends Component {
         {name: 'Pull-ups'},
         {name: 'Sit-ups'}
       ],
-      // activities: [{count: 10, type: 0, time: 1513590761061}, {count: 15, type: 0, time: 1513690761061}, 
-      // {count: 15, type: 0, time: 1513710761061}, {count: 1, type: 1, time: 1513790761061}, {count: 3, type: 1, time: 1512690761061}]
       activities: []
     };
     this.timeLimit = 5000;
@@ -25,7 +23,11 @@ class App extends Component {
   componentDidMount() {
     const activitiesRef = firebase.database().ref('activities');
     activitiesRef.on('value', snapshot => {
-      this.setState({activities: Object.values(snapshot.val())})
+      let activities = snapshot.val();
+      let activitiesArr = Object.keys(activities).map(id => {
+        return {...activities[id], id}
+      })
+      this.setState({activities: activitiesArr})
     })
   }
 
@@ -36,23 +38,25 @@ class App extends Component {
     let type = +e.currentTarget.id;
     let activities = this.sortByTime([...this.state.activities]);
     if (Math.abs(time - activities[0].time) < this.timeLimit && type === activities[0].type) {
-      activities[0].count += 10;
-      this.setState({activities});
+      const activityRef = firebase.database().ref(`/activities/${activities[0].id}`);
+      activityRef.update({count: activities[0].count + 10});
     } else {
       let newActivity = {count: 10, type: type, time: time.getTime()};
       activitiesRef.push(newActivity);
-      // this.setState({activities: [...activities, newActivity]});
     }
   }
   removeActivity = (id) => {
-    this.setState({activities: this.state.activities.filter((a, i) => i !== id )});
+    const activityRef = firebase.database().ref(`/activities/${id}`);
+    activityRef.remove();
   }
-  changeAmount = (id, sign, amount) => {
-    let newActivities = [...this.state.activities];
-    if (sign === "minus") {amount = -amount}
-    newActivities[id].count += +amount;
-    if (newActivities[id].count < 0) {newActivities[id].count = 0}
-    this.setState({activities: newActivities});
+  changeAmount = (id, sign, increment) => {
+    if (sign === "minus") {increment = -increment}
+    const activityRef = firebase.database().ref(`/activities/${id}`);
+    activityRef.once('value').then(snapshot => {
+      activityRef.update({count: +increment + snapshot.val().count});
+    });
+    
+
   }
   sortByTime(arr) {
     return arr.sort((a, b) => b.time - a.time);
