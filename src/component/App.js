@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
-import firebase from '../config/firebase';
+import firebase, { auth, provider } from '../config/firebase';
 
+import 'reset-css/reset.css'
 import './App.css';
 import Activities from './Activities';
+import Login from './Login';
 import RaisedButton from 'material-ui/RaisedButton';
+import AppBar from 'material-ui/AppBar';
+import LinearProgress from 'material-ui/LinearProgress';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+
 
 
 class App extends Component {
@@ -15,12 +21,27 @@ class App extends Component {
         {name: 'Pull-ups'},
         {name: 'Sit-ups'}
       ],
-      activities: []
+      activities: [],
+      user: null,
+      loading: true
     };
     this.timeLimit = 5000;
   }
 
   componentDidMount() {
+    this.setState({ loading: true})
+    auth.onAuthStateChanged((user) => {
+      this.setState({ loading: false})
+      if (user) {
+        this.setState({ 
+          user: {
+            photoURL: user.photoURL,
+            displayName: user.displayName
+          }
+        });
+      } 
+    });
+
     const activitiesRef = firebase.database().ref('activities');
     activitiesRef.on('value', snapshot => {
       let activities = snapshot.val();
@@ -29,6 +50,18 @@ class App extends Component {
       })
       this.setState({activities: activitiesArr})
     })
+  }
+
+  logout() {
+    auth.signOut()
+      .then(() => {
+        this.setState({
+          user: null
+        });
+      });
+  }
+  login() {
+    auth.signInWithRedirect(provider)
   }
 
   addActivity = (e) => {
@@ -62,17 +95,45 @@ class App extends Component {
     return arr.sort((a, b) => b.time - a.time);
   }
   render() {
+    let loginProps = {
+      user: this.state.user,
+      handleLogin: this.login,
+      handleLogout: () => this.logout()
+    }
+    let activitiesProps = {
+      activities: this.state.activities,
+      types: this.state.types,
+      sortByTime: this.sortByTime, 
+      removeActivity: this.removeActivity,
+      changeAmount: this.changeAmount
+    }
+    let addActivityButtons = this.state.types.map((type, i) => {
+      return <RaisedButton key={i} id={i} label={type.name} className="AddActivity" onClick={this.addActivity} />
+    })
+    const mainStyle = {
+      color: getMuiTheme().palette.textColor, 
+      textAlign: 'center'
+    }
+    const welcomeBannerStyle = {
+      fontSize: '30px', 
+      marginTop: '50px'
+    }
     return (
       <MuiThemeProvider>
         <div className="App">
-          <header className="App-header">
-            <h1 className="App-title">Fitcount</h1>
-          </header>
-          <main>
-            <RaisedButton id="0" label="Pull-ups" className="AddActivity" onClick={this.addActivity} />
-            <RaisedButton id="1" label="Sit-ups" className="AddActivity" onClick={this.addActivity} />
-            <Activities activities={this.state.activities} types={this.state.types} 
-                        sortByTime={this.sortByTime} removeActivity={this.removeActivity} changeAmount={this.changeAmount} />
+          <AppBar title="Fitcount">
+            <Login {...loginProps} />
+          </AppBar>
+          <main style={mainStyle}>
+          {this.state.loading ? <LinearProgress mode="indeterminate" /> :
+            this.state.user ?
+              <section>
+                {addActivityButtons}
+                <Activities {...activitiesProps} />
+              </section> 
+              : 
+              <h1 style={welcomeBannerStyle}>Welcome, try to login</h1>
+          }
           </main>
         </div>
       </MuiThemeProvider>
