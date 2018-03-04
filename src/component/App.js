@@ -18,37 +18,41 @@ class App extends Component {
     super(props);
     this.state = {
       types: [
-        {name: 'Pull-ups'},
-        {name: 'Sit-ups'}
+        {name: 'Pull-ups', defaultCount: 30},
+        {name: 'Sit-ups', defaultCount: 30},
+        {name: 'Push-ups', defaultCount: 10}
       ],
       activities: [],
       user: null,
       loading: true
     };
-    this.timeLimit = 5000;
+    this.timeLimit = 10000;
   }
 
   componentDidMount() {
     this.setState({ loading: true})
+    
+
     auth.onAuthStateChanged((user) => {
       this.setState({ loading: false})
       if (user) {
         this.setState({ 
           user: {
             photoURL: user.photoURL,
-            displayName: user.displayName
+            displayName: user.displayName, 
+            uid: user.uid
           }
-        });
-      } 
-    });
-
-    const activitiesRef = firebase.database().ref('activities');
-    activitiesRef.on('value', snapshot => {
-      let activities = snapshot.val();
-      let activitiesArr = Object.keys(activities).map(id => {
-        return {...activities[id], id}
-      })
-      this.setState({activities: activitiesArr})
+        })
+        const activitiesRef = firebase.database().ref('/activities/' + user.uid);
+        activitiesRef.on('value', snapshot => {
+          let activities = snapshot.val();
+          if (!activities) return
+          let activitiesArr = Object.keys(activities).map(id => {
+            return {...activities[id], id}
+          })
+          this.setState({activities: activitiesArr})
+        })
+      }
     })
   }
 
@@ -65,26 +69,27 @@ class App extends Component {
   }
 
   addActivity = (e) => {
-    const activitiesRef = firebase.database().ref('activities');
+    const activitiesRef = firebase.database().ref('/activities/' + this.state.user.uid);
 
     let time = new Date();
     let type = +e.currentTarget.id;
+    let count = this.state.types[type].defaultCount
     let activities = this.sortByTime([...this.state.activities]);
-    if (Math.abs(time - activities[0].time) < this.timeLimit && type === activities[0].type) {
-      const activityRef = firebase.database().ref(`/activities/${activities[0].id}`);
-      activityRef.update({count: activities[0].count + 10});
+    if ((activities.length) && (Math.abs(time - activities[0].time) < this.timeLimit && type === activities[0].type)) {
+      const activityRef = firebase.database().ref(`/activities/${this.state.user.uid}/${activities[0].id}`);
+      activityRef.update({count: activities[0].count + count});
     } else {
-      let newActivity = {count: 10, type: type, time: time.getTime()};
+      let newActivity = {count: count, type: type, time: time.getTime()};
       activitiesRef.push(newActivity);
     }
   }
   removeActivity = (id) => {
-    const activityRef = firebase.database().ref(`/activities/${id}`);
+    const activityRef = firebase.database().ref(`/activities/${this.state.user.uid}/${id}`);
     activityRef.remove();
   }
   changeAmount = (id, sign, increment) => {
     if (sign === "minus") {increment = -increment}
-    const activityRef = firebase.database().ref(`/activities/${id}`);
+    const activityRef = firebase.database().ref(`/activities/${this.state.user.uid}/${id}`);
     activityRef.once('value').then(snapshot => {
       activityRef.update({count: +increment + snapshot.val().count});
     });
