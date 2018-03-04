@@ -5,13 +5,21 @@ import 'reset-css/reset.css'
 import './App.css';
 import Activities from './Activities';
 import Login from './Login';
+
+import {deepOrange500, deepOrange700} from 'material-ui/styles/colors';
+
 import RaisedButton from 'material-ui/RaisedButton';
 import AppBar from 'material-ui/AppBar';
 import LinearProgress from 'material-ui/LinearProgress';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
-
+const muiTheme = getMuiTheme({
+  palette: {
+    primary1Color: deepOrange500,
+    primary2Color: deepOrange700
+  }
+})
 
 class App extends Component {
   constructor(props) {
@@ -124,7 +132,7 @@ class App extends Component {
       marginTop: '50px'
     }
     return (
-      <MuiThemeProvider>
+      <MuiThemeProvider muiTheme={muiTheme}>
         <div className="App">
           <AppBar title="Fitcount">
             <Login {...loginProps} />
