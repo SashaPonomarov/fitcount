@@ -5,7 +5,9 @@ This is a little app to keep track of your fitness routines, specifically the nu
 Demo app is hosted [here](https://fitcount-9603f.firebaseapp.com/).
 
 If you'd like to host the app yourself, clone the repo and add your firebase credentials at `src/config/firebase.js`. The file should look like this:
-`import firebase from 'firebase';
+
+```javascript
+import firebase from 'firebase';
 const config = {
   apiKey: "",
   authDomain: "",
@@ -17,7 +19,8 @@ const config = {
 firebase.initializeApp(config);
 export const provider = new firebase.auth.GoogleAuthProvider();
 export const auth = firebase.auth();
-export default firebase;`
+export default firebase;
+```
 
 Use `npm run build` for production build.
 
