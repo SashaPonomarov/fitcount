@@ -1,4 +1,4 @@
-# Fitcount
+# <img src="https://raw.githubusercontent.com/SashaPonomarov/fitcount/master/public/apple-touch-icon.png" width="120"> Fitcount
 
 This is a little app to keep track of your fitness routines, specifically the number of certain excercises you do per day. It uses React and Material-UI for rendering and Firebase database for data storage.
 
