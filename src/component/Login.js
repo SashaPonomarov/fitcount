@@ -22,12 +22,10 @@ class Login extends Component {
     const {user, handleLogin, handleLogout} = this.props
     let loginButton = user ?
        <ListItem 
-          key="0"
-          // disabled={true}
           onClick={this.toggleProfile}
           rightAvatar={<Avatar src={user.photoURL} />}
         >
-          <div className="username inverted-palette">{user.displayName}</div>
+          <div className="username username-appbar inverted-palette">{user.displayName.split(' ')[0]}</div>
         </ListItem>
       :
         <FlatButton className="inverted-palette" label="Log in" onClick={handleLogin} />
@@ -37,7 +35,9 @@ class Login extends Component {
         {loginButton}
         {this.state.showProfile && 
         <Paper className="Profile">
-          <FlatButton key="1" label="Log out" onClick={() => {handleLogout(); this.toggleProfile()}} />
+          <div className="username">{user.displayName}</div>
+          <div>{user.email}</div>
+          <FlatButton label="Log out" onClick={() => {handleLogout(); this.toggleProfile()}} />
         </Paper>}
       </div>
     );

@@ -6,10 +6,11 @@
   right: -20px;
 }
 .Profile {
+  text-align: center;
   position: absolute;
   right: 20px;
-  bottom: -50px;
-  padding: 10px;
+  top: 60px;
+  padding: 30px;
 }
 .Profile:after {
   content: "";
@@ -24,7 +25,16 @@
 }
 .username {
   margin: 0 10px;
+  font-size: 18px;
 }
 .inverted-palette {
   color: white !important;
+}
+
+@media (max-width: 800px) {
+  .username-appbar {
+    overflow: hidden;
+    max-width: 80px;
+    white-space: nowrap;
+  }
 }

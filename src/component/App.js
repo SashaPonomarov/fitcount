@@ -49,6 +49,7 @@ class App extends Component {
           user: {
             photoURL: user.photoURL,
             displayName: user.displayName, 
+            email: user.email,
             uid: user.uid
           }
         })
