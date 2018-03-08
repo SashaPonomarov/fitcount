@@ -23,7 +23,7 @@ class Activity extends Component {
 
     return (
       <ListItem id={id} className={"Activity " + (expanded ? "expanded" : "")} onClick={expand}>
-        <div className="activity-data">{activity.count} {types[activity.type].name} {time.getHours()}:{time.getMinutes()}</div>
+        <div className="activity-data">{activity.count} {types[activity.type] && types[activity.type].name} {time.getHours()}:{time.getMinutes()}</div>
         <div className="activity-actions">
           <IconButton tooltip="Increase" className="increase-button" data-sign="plus" data-amount="5" onClick={this.handleChange}>
             <IconIncrease />
